@@ -8,7 +8,6 @@ const public_users = express.Router();
 public_users.post("/register", (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
-  console.log(username, password);
 
   if (username && password) {
     const isUserExists = isValid(username);
