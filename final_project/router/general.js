@@ -4,24 +4,6 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
-const getBooks = async () => books;
-const getBookByISBN = async (isbn) => books[isbn];
-const getBookByAuthor = async (author) => {
-  for (const key in books) {
-      if (books[key].author === author) {
-        return books[key];
-      }
-    }
-};
-const getBookByTitle = async (title) => {
-  for (const key in books) {
-    if (books[key].title === title) {
-      return books[key];
-    }
-  }
-};
-
-
 public_users.post("/register", (req,res) => {
   const username = req.body.username;
   const password = req.body.password;
@@ -43,11 +25,15 @@ public_users.post("/register", (req,res) => {
 // Get the book list available in the shop
 public_users.get('/', async function (req, res) {
   try {
-    let result = await getBooks();
+    let result = await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(books);
+      }, 3000);
+    });
 
     return res.status(200).json(result);
   } catch (error) {
-    return res.status(500).json({ message: 'Error: getBooks failed' });
+    return res.status(500).json({ message: 'Error: fetching failed' });
   }
 });
 
@@ -60,11 +46,15 @@ public_users.get('/isbn/:isbn', async function (req, res) {
     }
 
   try {
-    let result = await getBookByISBN(isbn);
+    let result = await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(books[isbn]);
+      }, 3000);
+    });
 
     return res.status(200).json(result);
   } catch (error) {
-    return res.status(500).json({ message: 'Error: getBookByISBN failed' });
+    return res.status(500).json({ message: 'Error: fetching failed' });
   }
  });
   
@@ -74,7 +64,15 @@ public_users.get('/author/:author', async function (req, res) {
   let result;
 
   try {
-    result = await getBookByAuthor(author);
+    result = await new Promise((resolve) => {
+      setTimeout(() => {
+          for (const key in books) {
+            if (books[key].author === author) {
+              resolve(books[key]);
+            }
+          }
+      }, 3000);
+    });
 
     if (!result) {
       return res.status(404).json({ message: `Book with author ${author} not found`});
@@ -82,7 +80,7 @@ public_users.get('/author/:author', async function (req, res) {
 
     return res.status(200).json(result);
   } catch (error) {
-    return res.status(500).json({ message: 'Error: getBookByAuthor failed' });
+    return res.status(500).json({ message: 'Error: fetching failed' });
   }
 });
 
@@ -92,7 +90,15 @@ public_users.get('/title/:title', async function (req, res) {
   let result;
 
   try {
-    let result = await getBookByTitle(title);
+    result = await new Promise((resolve) => {
+      setTimeout(() => {
+          for (const key in books) {
+            if (books[key].title === title) {
+              resolve(books[key]);
+            }
+          }
+      }, 3000);
+    });
 
     if (!result) {
       return res.status(404).json({ message: `Book with title ${title} not found`});
@@ -101,7 +107,7 @@ public_users.get('/title/:title', async function (req, res) {
     return res.status(200).json(result);
 
   } catch (error) {
-    return res.status(500).json({ message: 'Error: getBookByTitle failed' });
+    return res.status(500).json({ message: 'Error: fetching failed' });
   }
 });
 
