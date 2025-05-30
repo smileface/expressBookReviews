@@ -11,10 +11,9 @@ public_users.post("/register", (req,res) => {
   console.log(username, password);
 
   if (username && password) {
-    const existingUser = users.filter((user) => user.username === username);
-    console.log(existingUser);
+    const isUserExists = isValid(username);
 
-    if (!!existingUser.length) {
+    if (isUserExists) {
       return res.status(409).json({message: "User already exists!"});
     }
 
