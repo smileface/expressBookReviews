@@ -13,6 +13,13 @@ const getBookByAuthor = async (author) => {
       }
     }
 };
+const getBookByTitle = async (title) => {
+  for (const key in books) {
+    if (books[key].title === title) {
+      return books[key];
+    }
+  }
+};
 
 
 public_users.post("/register", (req,res) => {
@@ -80,22 +87,22 @@ public_users.get('/author/:author', async function (req, res) {
 });
 
 // Get all books based on title
-public_users.get('/title/:title',function (req, res) {
+public_users.get('/title/:title', async function (req, res) {
   const title = req.params.title;
   let result;
 
-  for (const key in books) {
-    if (books[key].title === title) {
-      result = books[key];
-      break;
+  try {
+    let result = await getBookByTitle(title);
+
+    if (!result) {
+      return res.status(404).json({ message: `Book with title ${title} not found`});
     }
-  }
 
-  if (!result) {
-    return res.status(404).json({ message: `Book with title ${title} not found`});
-  }
+    return res.status(200).json(result);
 
-  return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ message: 'Error: getBookByTitle failed' });
+  }
 });
 
 //  Get book review
