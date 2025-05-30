@@ -4,6 +4,8 @@ let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
+const getBooks = async () => books;
+
 
 public_users.post("/register", (req,res) => {
   const username = req.body.username;
@@ -24,8 +26,14 @@ public_users.post("/register", (req,res) => {
 });
 
 // Get the book list available in the shop
-public_users.get('/',function (req, res) {
-  return res.status(200).json(books);
+public_users.get('/', async function (req, res) {
+  try {
+    let result = await getBooks();
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ message: 'Error: getBooks failed' });
+  }
 });
 
 // Get book details based on ISBN
