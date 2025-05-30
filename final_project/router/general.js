@@ -5,6 +5,7 @@ let users = require("./auth_users.js").users;
 const public_users = express.Router();
 
 const getBooks = async () => books;
+const getBookByISBN = async (isbn) => books[isbn];
 
 
 public_users.post("/register", (req,res) => {
@@ -37,14 +38,20 @@ public_users.get('/', async function (req, res) {
 });
 
 // Get book details based on ISBN
-public_users.get('/isbn/:isbn',function (req, res) {
-  const isbn = req.params.isbn;
+public_users.get('/isbn/:isbn', async function (req, res) {
+    const isbn = req.params.isbn;
 
-  if (!isbn || !books.hasOwnProperty(isbn)) {
-    return res.status(404).json({ message: `Book with ISBN ${isbn} not found`});
+    if (!isbn || !books.hasOwnProperty(isbn)) {
+      return res.status(404).json({ message: `Book with ISBN ${isbn} not found`});
+    }
+
+  try {
+    let result = await getBookByISBN(isbn);
+
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ message: 'Error: getBookByISBN failed' });
   }
-
-  return res.status(200).json(books[isbn]);
  });
   
 // Get book details based on author
