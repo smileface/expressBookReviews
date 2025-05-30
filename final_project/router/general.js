@@ -6,6 +6,13 @@ const public_users = express.Router();
 
 const getBooks = async () => books;
 const getBookByISBN = async (isbn) => books[isbn];
+const getBookByAuthor = async (author) => {
+  for (const key in books) {
+      if (books[key].author === author) {
+        return books[key];
+      }
+    }
+};
 
 
 public_users.post("/register", (req,res) => {
@@ -55,22 +62,21 @@ public_users.get('/isbn/:isbn', async function (req, res) {
  });
   
 // Get book details based on author
-public_users.get('/author/:author',function (req, res) {
+public_users.get('/author/:author', async function (req, res) {
   const author = req.params.author;
   let result;
 
-  for (const key in books) {
-    if (books[key].author === author) {
-      result = books[key];
-      break;
+  try {
+    result = await getBookByAuthor(author);
+
+    if (!result) {
+      return res.status(404).json({ message: `Book with author ${author} not found`});
     }
-  }
 
-  if (!result) {
-    return res.status(404).json({ message: `Book with author ${author} not found`});
+    return res.status(200).json(result);
+  } catch (error) {
+    return res.status(500).json({ message: 'Error: getBookByAuthor failed' });
   }
-
-  return res.status(200).json(result);
 });
 
 // Get all books based on title
